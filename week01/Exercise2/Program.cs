@@ -11,7 +11,7 @@ class Program
         {
             letter = "A";
         }
- 
+
         else if (grade_percentage >= 80)
         {
             letter = "B";
@@ -26,7 +26,7 @@ class Program
         {
             letter = "D";
         }
-        
+
         else
         {
             letter = "F";
