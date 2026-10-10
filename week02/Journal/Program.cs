@@ -4,40 +4,52 @@ using System.IO;
 
 class Entry
 {
-    public string Text { get; set; }
-    public DateTime Date { get; set; }
+    public string Text;
+    public string Mood;
+    public string Date;
+
+    public Entry(string text, string mood = "Neutral")
+    {
+        Text = text;
+        Mood = mood;
+        Date = DateTime.Now.ToShortDateString();
+    }
 
     public void Display()
     {
-        Console.WriteLine($"{Date.ToShortDateString()} - {Text}");
+        Console.WriteLine($"{Date} - Mood: {Mood} - {Text}");
     }
 }
 
 class Journal
 {
-    private List<Entry> _entries = new List<Entry>();
+    private readonly List<Entry> _entries = new();
 
-    public void AddEntry(string text)
+    public void AddEntry(string text, string mood = "Neutral")
     {
-        Entry entry = new Entry
-        {
-            Text = text,
-            Date = DateTime.Now
-        };
-        _entries.Add(entry);
+        _entries.Add(new Entry(text, mood));
     }
 
-    public List<Entry> GetEntries()
+    public void ShowEntries()
     {
-        return _entries;
+        if (_entries.Count == 0)
+        {
+            Console.WriteLine("No entries yet.");
+            return;
+        }
+
+        foreach (Entry entry in _entries)
+        {
+            entry.Display();
+        }
     }
 
     public void SaveToFile(string filename)
     {
-        List<string> lines = new List<string>();
+        List<string> lines = new();
         foreach (Entry entry in _entries)
         {
-            lines.Add($"{entry.Date}|{entry.Text}");
+            lines.Add($"{entry.Date}|{entry.Mood}|{entry.Text}");
         }
         File.WriteAllLines(filename, lines);
         Console.WriteLine("Journal saved successfully.");
@@ -45,38 +57,46 @@ class Journal
 
     public void LoadFromFile(string filename)
     {
-        if (File.Exists(filename))
-        {
-            string[] lines = File.ReadAllLines(filename);
-            _entries.Clear();
-            foreach (string line in lines)
-            {
-                string[] parts = line.Split('|');
-                if (parts.Length == 2)
-                {
-                    Entry entry = new Entry
-                    {
-                        Date = DateTime.Parse(parts[0]),
-                        Text = parts[1]
-                    };
-                    _entries.Add(entry);
-                }
-            }
-            Console.WriteLine("Journal loaded successfully.");
-        }
-        else
+        if (!File.Exists(filename))
         {
             Console.WriteLine("No saved journal found.");
+            return;
         }
+
+        string[] lines = File.ReadAllLines(filename);
+        _entries.Clear();
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split('|', 3);
+            if (parts.Length == 3)
+            {
+                string date = parts[0];
+                string mood = parts[1];
+                string text = parts[2];
+                Entry entry = new(text, mood) { Date = date };
+                _entries.Add(entry);
+            }
+        }
+
+        Console.WriteLine("Journal loaded successfully.");
     }
 }
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        Journal theJournal = new Journal();
+        Journal theJournal = new();
         bool running = true;
+
+        string[] prompts =
+        {
+            "What was the best part of your day?",
+            "What did you learn today?",
+            "How did you feel today?",
+            "If you could redo one thing today, what would it be?"
+        };
 
         while (running)
         {
@@ -93,19 +113,20 @@ class Program
             switch (choice)
             {
                 case "1":
-                    Console.WriteLine("If I had one thing I could do over today, what would it be?");
+                    Random random = new Random();
+                    string prompt = prompts[random.Next(prompts.Length)];
+                    Console.WriteLine(prompt);
                     Console.Write("> ");
                     string response = Console.ReadLine();
-                    theJournal.AddEntry(response);
+                    Console.Write("Mood (Happy, Sad, Excited, etc.): ");
+                    string mood = Console.ReadLine();
+                    theJournal.AddEntry(response, mood);
                     Console.WriteLine("Entry added!");
                     break;
 
                 case "2":
                     Console.WriteLine("Displaying journal entries:");
-                    foreach (Entry entry in theJournal.GetEntries())
-                    {
-                        entry.Display();
-                    }
+                    theJournal.ShowEntries();
                     break;
 
                 case "3":
@@ -130,3 +151,7 @@ class Program
         }
     }
 }
+
+// Exceeding Requirements:
+// 1. Added a random prompt generator to encourage journaling.
+// 2. Added a "Mood" field to entries to capture emotional context.
