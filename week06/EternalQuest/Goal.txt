@@ -1,0 +1,3 @@
+Score|0
+Simple|False|50|Give a talk|Speak at the sacrament metting if asked
+Eternal|50|Workout|Workout 30 min day

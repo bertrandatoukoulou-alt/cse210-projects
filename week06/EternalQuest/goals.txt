@@ -1,0 +1,4 @@
+0
+SimpleGoal:Give a talk,Speak on sacramen t metting,20,False
+EternalGoal:Study the scriptures,study the scripture for 15min a day,30
+ChecklistGoal:Attend temple,Attend temple ordinances evry month,10,100,3,0
